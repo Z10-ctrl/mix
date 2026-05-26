@@ -1,0 +1,231 @@
+﻿<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Audio Editor Web - Proyek Kreatif</title>
+  <link rel="stylesheet" href="mixer-style.css">
+</head>
+
+<body>
+  <div class="mobile-panel-backdrop" id="mobile-panel-backdrop" aria-hidden="true"></div>
+  <div class="history-container flip-horizontal-bottom" id="history-panel">
+    <div class="history-header">
+      <h3 class="history-title">Upload History</h3>
+      <button onclick="clearHistory()" class="clear-all-btn">Clear All</button>
+      <button type="button" class="panel-close-btn" data-close-panel aria-label="Close upload history">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+          stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <div id="history-list" class="history-list">
+    </div>
+  </div>
+  <div class="editor-container">
+    <header>
+      <div class="header-logo-group">
+        <h2 class="focus-in-contract-bck" style="margin: 0; display: flex; align-items: center; gap: 10px;">
+          <img src="Disc-Icon.png" alt="Header Logo" width="34px" height="34px">
+          <span class="text-shine" style="display: inline-block;">Mixer Pro</span>
+        </h2>
+      </div>
+      <p class="subtitle">Seamless modulation and high quality, customize your audio with same quality as original.</p>
+        </header>
+    <div class="mobile-quick-menu" aria-label="Mobile mixer menu">
+      <button type="button" class="mobile-menu-btn" data-panel-target="history" aria-controls="history-panel"
+        aria-expanded="false" title="Upload History">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 12a9 9 0 1 0 3-6.7"></path>
+          <path d="M3 3v6h6"></path>
+          <path d="M12 7v5l3 2"></path>
+        </svg>
+      </button>
+      <button type="button" class="mobile-menu-btn" data-panel-target="fx" aria-controls="fx-panel"
+        aria-expanded="false" title="FX Chain">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"></path>
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07M8.46 8.46a5 5 0 0 0 0 7.07"></path>
+        </svg>
+      </button>
+    </div>
+    <div class="upload-section" id="upload-section" style="display: flex; justify-content: center;">
+      <div class="track-upload" id="track-upload-a">
+        <label for="audio-file-a" class="custom-file-upload"
+          style="display: inline-flex; align-items: center; justify-content: center; gap: 5px;">
+          Upload Track
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </label>  
+        <input type="file" id="audio-file-a" accept="audio/mp3, audio/wav, audio/ogg">
+          <span id="file-name-a">No file</span>
+        </div>
+    </div>
+
+    <div class="timeline-container">
+      <div class="track-timeline" id="timeline-a">
+        <div class="waveform-wrapper" id="waveform-wrapper"
+          style="position: relative; width: 100%; height: 100px; background: linear-gradient(to bottom, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.12)); border-radius: 12px; margin-bottom: 12px; border: 1px solid rgba(255, 255, 255, 0.1); overflow: hidden; touch-action: none;">
+          <canvas id="waveform-a"
+            style="display: block; width: 100%; height: 100%; background: transparent; border: none; border-radius: 0; margin: 0; padding: 0; z-index: 1;"></canvas>
+
+          <div id="trim-dim-left" class="trim-dim dim-left"></div>
+          <div id="trim-dim-right" class="trim-dim dim-right"></div>
+
+          <div id="trim-handle-left" class="trim-handle handle-left"></div>
+          <div id="trim-handle-right" class="trim-handle handle-right"></div>
+
+          <div id="playhead"
+            style="position: absolute; top: 0; bottom: 0; width: 2px; background: #ff3737; pointer-events: none; left: 0; display: none; z-index: 15;">
+          </div>
+        </div>
+        <div class="time-display">Track: <span id="current-time-a">0:00</span> / <span id="total-time-a">0:00</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="master-controls" id="master-controls">
+        <div class="control-group" style="margin-bottom: 0;">
+          <label>Master Volume: <span id="volume-val">80%</span></label>
+          <input type="range" id="volume" min="0" max="100" step="1" value="80">
+        </div>
+        <div class="repeat-btn-wrapper">
+          <button id="repeat-btn" class="repeat-btn" title="Auto Repeat" disabled>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="17 1 21 5 17 9"></polyline>
+              <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+              <polyline points="7 23 3 19 7 15"></polyline>
+              <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label>Speed (Tempo): <span id="speed-val">1x</span></label>
+        <input type="range" id="speed" min="0.5" max="2" step="0.1" value="1">
+      </div>
+
+      <div class="control-group">
+        <label>Pitch: <span id="pitch-val">0 st</span></label>
+        <input type="range" id="pitch" min="-12" max="12" step="1" value="0">
+      </div>
+
+      <div class="control-group">
+        <label>Bass Boost: <span id="bass-val">0 dB</span></label>
+        <input type="range" id="bass" min="-10" max="25" step="1" value="0">
+      </div>
+
+      <div class="control-group">
+        <label>Reverb Level: <span id="reverb-val">0%</span></label>
+        <input type="range" id="reverb" min="0" max="100" step="1" value="0">
+      </div>
+
+      <div class="trim-section" style="display: none;">
+        <div class="control-group">
+          <label>Trim (Start): <span id="start-val">0%</span></label>
+          <input type="range" id="trim-start" min="0" max="99" step="1" value="0">
+        </div>
+        <div class="control-group">
+          <label>Trim (End): <span id="end-val">100%</span></label>
+          <input type="range" id="trim-end" min="1" max="100" step="1" value="100">
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button id="play-pause-btn" class="primary-btn" disabled>
+        <svg id="icon-play" width="20" height="20" viewBox="0 0 24 24" fill="none" style="display:block;">
+          <path d="M5 3L19 12L5 21V3Z" fill="currentColor" />
+        </svg>
+        <svg id="icon-pause" width="20" height="20" viewBox="0 0 24 24" fill="none" style="display:none;">
+          <path d="M6 4H10V20H6V4ZM14 4H18V20H14V4Z" fill="currentColor" />
+        </svg>
+      </button>
+      <button id="stop-btn" class="secondary-btn" disabled title="Stop">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <rect x="6" y="6" width="12" height="12" fill="currentColor" />
+        </svg>
+      </button>
+      <button id="export-btn" class="secondary-btn" disabled title="Export Audio"
+        style="padding: 0 16px; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        Export
+      </button>
+    </div>
+
+    <div class="footer">
+      <p class="text-footer">Copyright &copy; 2025-2026 OBC.com. All rights reserved.</p>
+    </div>
+  </div>
+    <div class="extra-container" id="fx-panel">
+    <div class="extra-header">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"></circle>
+        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"></path>
+        <path d="M15.54 8.46a5 5 0 0 1 0 7.07M8.46 8.46a5 5 0 0 0 0 7.07"></path>
+      </svg>
+      <h3 class="extra-title">FX Chain</h3>
+      <button type="button" class="panel-close-btn" data-close-panel aria-label="Close FX Chain">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+          stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+    <div class="extra-content">
+
+      <div class="control-group">
+        <label>Distortion: <span id="distortion-val">0%</span></label>
+        <input type="range" id="distortion" min="0" max="100" step="1" value="0">
+      </div>
+
+      <div class="control-group">
+        <label>Delay / Echo: <span id="delay-val">0%</span></label>
+        <input type="range" id="delay" min="0" max="100" step="1" value="0">
+      </div>
+
+      <div class="control-group">
+        <label>Stereo Panner: <span id="panner-val">Center</span></label>
+        <input type="range" id="panner" min="-100" max="100" step="1" value="0">
+      </div>
+
+      <div class="extra-pair">
+        <div class="control-group">
+          <label>Fade In: <span id="fadein-val">0s</span></label>
+          <input type="range" id="fadein" min="0" max="10" step="0.1" value="0">
+        </div>
+        <div class="control-group">
+          <label>Fade Out: <span id="fadeout-val">0s</span></label>
+          <input type="range" id="fadeout" min="0" max="10" step="0.1" value="0">
+        </div>
+      </div>
+
+      <div class="control-group" style="margin-bottom: 0;">
+        <label>Normalize Gain: <span id="normalize-val">100%</span></label>
+        <input type="range" id="normalize" min="0" max="200" step="1" value="100">
+      </div>
+
+    </div>
+  </div>
+  <script src="mixer.js"></script>
+</body>
+</html>
+
